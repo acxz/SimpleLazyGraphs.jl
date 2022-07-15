@@ -1,0 +1,13 @@
+name = "LazyGraphs"
+uuid = "25527315-2f61-4b3f-bb6b-3fe748044894"
+authors = ["Akash Patel"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
