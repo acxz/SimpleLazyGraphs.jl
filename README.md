@@ -1,6 +1,6 @@
 # SimpleLazyGraphs
 
-[![Build Status](https://github.com/acxz/LazyGraphs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/acxz/LazyGraphs.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/acxz/SimpleLazyGraphs.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/acxz/SimpleLazyGraphs.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 Graphs that lazily expand.
 
