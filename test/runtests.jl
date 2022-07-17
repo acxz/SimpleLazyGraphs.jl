@@ -1,6 +1,6 @@
-import Graphs
-import GraphPlot
-import SimpleLazyGraphs
+using Graphs
+using GraphPlot
+using SimpleLazyGraphs
 using Test
 
 
@@ -38,24 +38,15 @@ using Test
             return outneighbors
         end
 
-        g = SimpleLazyGraphs.SimpleLazyGraph(inneighbors_lazy, outneighbors_lazy)
-        SimpleLazyGraphs.add_vertex!(g)
-        SimpleLazyGraphs.add_vertex!(g)
-        SimpleLazyGraphs.add_edge!(g, 1, 2)
-        println(g)
-        #GraphPlot.gplothtml(g, nodelabel = 1:Graphs.nv(g))
-        @test @inferred(SimpleLazyGraphs.inneighbors(g, 1)) == [2, 3, 4, 5]
-        println(g)
-        @test @inferred(SimpleLazyGraphs.inneighbors(g, 2)) == [1, 3, 5]
-        println(g)
-        @test @inferred(SimpleLazyGraphs.outneighbors(g, 5)) == [1, 2, 4]
-        println(g)
+        g = SimpleLazyGraph(inneighbors_lazy, outneighbors_lazy)
+        add_vertex!(g)
+        # TODO: wrap this as well
+        #gplothtml(g, nodelabel = 1:nv(g))
+        gplothtml(g.simple_graph, nodelabel = 1:nv(g))
+        @test @inferred(inneighbors(g, 1)) == [2, 3, 4, 5]
+        gplothtml(g.simple_graph, nodelabel = 1:nv(g))
+        @test @inferred(inneighbors(g, 2)) == [1, 3, 5]
+        gplothtml(g.simple_graph, nodelabel = 1:nv(g))
+        @test @inferred(outneighbors(g, 5)) == [1, 2, 4]
     end
-
-    #@testset "og graph neighbor functions" begin
-    #    g5w = Graphs.wheel_graph(5)
-    #    GraphPlot.gplothtml(g5w, nodelabel = 1:Graphs.nv(g5w))
-    #    @test @inferred(Graphs.inneighbors(g5w, 2)) == [1, 3, 5]
-    #    @test @inferred(Graphs.outneighbors(g5w, 2)) == [1, 3, 5]
-    #end
 end
