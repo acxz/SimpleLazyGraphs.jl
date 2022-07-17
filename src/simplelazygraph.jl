@@ -2,6 +2,7 @@
     SimpleLazyGraph{T}
 A type representing a graph that computes its vertices and edges as needed.
 """
+# How to use default constructor
 mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
 
     ne::Int
@@ -124,11 +125,11 @@ function add_edge!(g::AbstractSimpleGraph{T}, s, d) where {T}
     return true  # edge successfully added
 end
 
-is_directed(::Type{<:SimpleLazyGraph}) = false
+is_directed(::Type{<:AbstractSimpleLazyGraph}) = false
 
-edgetype(::SimpleLazyGraph{T}) where {T<:Integer} = SimpleGraphEdge{T}
+edgetype(::AbstractSimpleLazyGraph{T}) where {T<:Integer} = SimpleGraphEdge{T}
 
-function has_edge(g::SimpleLazyGraph{T}, s, d) where {T}
+function has_edge(g::AbstractSimpleLazyGraph{T}, s, d) where {T}
     verts = vertices(g)
     (s in verts && d in verts) || return false  # edge out of bounds
     @inbounds list_s = g.fadjlist[s]
@@ -140,7 +141,7 @@ function has_edge(g::SimpleLazyGraph{T}, s, d) where {T}
     return insorted(d, list_s)
 end
 
-function has_edge(g::SimpleLazyGraph{T}, e::SimpleGraphEdge{T}) where {T}
+function has_edge(g::AbstractSimpleLazyGraph{T}, e::SimpleGraphEdge{T}) where {T}
     s, d = T.(Tuple(e))
     return has_edge(g, s, d)
 end
