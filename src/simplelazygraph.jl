@@ -4,7 +4,6 @@ A type representing a graph that computes its vertices and edges as needed.
 """
 # How to use default constructor
 mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
-
     ne::Int
     fadjlist::Vector{Vector{T}} # [src]: (dst, dst, dst)
 
@@ -19,15 +18,19 @@ mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
     function SimpleLazyGraph{T}(
         ne::Int,
         fadjlist::Vector{Vector{T}},
+        created_inneighbors::Vector{Bool},
+        created_outneighbors::Vector{Bool},
         inneighbors_lazy::Function,
         outneighbors_lazy::Function,
     ) where {T}
-
-        throw_if_invalid_eltype(T)
-
-        created_inneighbors = Vector{Bool}()
-        created_outneighbors = Vector{Bool}()
-        return new(
+        nv = length(fadjlist)
+        if length(created_inneighbors) != nv
+            error("Created inneighbors is not the same length as the number of vertices!")
+        end
+        if length(created_outneighbors) != nv
+            error("Created outneighbors is not the same length as the number of vertices!")
+        end
+        return new{T}(
             ne,
             fadjlist,
             created_inneighbors,
@@ -36,20 +39,29 @@ mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
             outneighbors_lazy,
         )
     end
-
 end
 
 # Create simplelazygraphs based on specified inneighbor/outneighbor function or just a single neighbor function
-function SimpleLazyGraph(
+function SimpleLazyGraph{T}(
     ne::Int,
     fadjlist::Vector{Vector{T}},
     inneighbors_lazy::Function,
     outneighbors_lazy::Function,
 ) where {T}
-    return SimpleLazyGraph{T}(ne, fadjlist, inneighbors_lazy, outneighbors_lazy)
+    nv = length(fadjlist)
+    created_inneighbors = fill(false, nv)
+    created_outneighbors = fill(false, nv)
+    return SimpleLazyGraph{T}(
+        ne,
+        fadjlist,
+        created_inneighbors,
+        created_outneighbors,
+        inneighbors_lazy,
+        outneighbors_lazy,
+    )
 end
 
-function SimpleLazyGraph(
+function SimpleLazyGraph{T}(
     ne::Int,
     fadjlist::Vector{Vector{T}},
     neighbors_lazy::Function, # function to compute the neighbors of a vertex
