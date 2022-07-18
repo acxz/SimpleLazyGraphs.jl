@@ -40,13 +40,19 @@ using Test
 
         g = SimpleLazyGraph(inneighbors_lazy, outneighbors_lazy)
         add_vertex!(g)
-        # TODO: wrap this as well
+        # TODO: weird bug with gplothtml about allocating sparse matrix scs?
         #gplothtml(g, nodelabel = 1:nv(g))
         gplothtml(g.simple_graph, nodelabel = 1:nv(g))
         @test @inferred(inneighbors(g, 1)) == [2, 3, 4, 5]
+        #gplothtml(g.simple_graph, nodelabel = 1:nv(g))
+        #@test @inferred(inneighbors(g, 2)) == [1, 3, 5]
+        #gplothtml(g.simple_graph, nodelabel = 1:nv(g))
+        #@test @inferred(outneighbors(g, 5)) == [1, 2, 4]
+
+        #a_star uses fixed closed_set, g_score, etc vectors they need to be updated based on the size of the graph as it grows
+        #dispatch it? or pull request it?
         gplothtml(g.simple_graph, nodelabel = 1:nv(g))
-        @test @inferred(inneighbors(g, 2)) == [1, 3, 5]
+        println(a_star(g, 3, 5))
         gplothtml(g.simple_graph, nodelabel = 1:nv(g))
-        @test @inferred(outneighbors(g, 5)) == [1, 2, 4]
     end
 end

@@ -1,5 +1,7 @@
 module SimpleLazyGraphs
 
+import DataStructures: dequeue!
+
 import Graphs:
     AbstractSimpleGraph,
     SimpleGraph,
@@ -12,10 +14,24 @@ import Graphs:
     ne,
     edgetype,
     is_directed,
-    has_edge
+    has_edge,
+    AbstractEdge,
+    a_star_impl!,
+    weights,
+    reconstruct_path!
 
 export AbstractSimpleLazyGraph,
-    SimpleLazyGraph, inneighbors, outneighbors, add_vertex!, add_edge!, nv, ne, edgetype, is_directed, has_edge
+    SimpleLazyGraph,
+    inneighbors,
+    outneighbors,
+    add_vertex!,
+    add_edge!,
+    nv,
+    ne,
+    edgetype,
+    is_directed,
+    has_edge,
+    a_star_impl!
 
 """
     AbstractSimpleLazyGraph

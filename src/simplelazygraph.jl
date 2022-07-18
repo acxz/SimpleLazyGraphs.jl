@@ -136,3 +136,48 @@ end
 function has_edge(g::AbstractSimpleLazyGraph, e::SimpleGraphEdge)
     return has_edge(g.simple_graph, e)
 end
+
+function a_star_impl!(g::AbstractSimpleGraph, # the graph
+    goal, # the end vertex
+    open_set, # an initialized heap containing the active vertices
+    closed_set, # an (initialized) color-map to indicate status of vertices
+    g_score, # a vector holding g scores for each node
+    came_from, # a vector holding the parent of each node in the A* exploration
+    distmx,
+    heuristic,
+    edgetype_to_return::Type{E}) where {E<:AbstractEdge}
+    total_path = Vector{edgetype_to_return}()
+
+    @inbounds while !isempty(open_set)
+        current = dequeue!(open_set)
+
+        if current == goal
+            reconstruct_path!(total_path, came_from, current, g, edgetype_to_return)
+            return total_path
+        end
+
+        closed_set[current] = true
+
+        for neighbor in outneighbors(g, current)
+            if neighbor > length(closed_set)
+                push!(closed_set, zero(typeof(closed_set[1])))
+                push!(g_score, Inf)
+                # TODO(acxz) can custom distmx be done in a lazy setting with
+                # the same astar api or do we need to piggyback off weights(g)?
+                distmx = weights(g)
+                push!(came_from, -one(goal))
+            end
+            closed_set[neighbor] && continue
+
+            tentative_g_score = g_score[current] + distmx[current, neighbor]
+
+            if tentative_g_score < g_score[neighbor]
+                g_score[neighbor] = tentative_g_score
+                priority = tentative_g_score + heuristic(neighbor)
+                open_set[neighbor] = priority
+                came_from[neighbor] = current
+            end
+        end
+    end
+    return total_path
+end
