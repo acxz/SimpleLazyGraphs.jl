@@ -2,7 +2,8 @@
     SimpleLazyGraph{T}
 A type representing a graph that computes its vertices and edges as needed.
 """
-mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
+mutable struct SimpleLazyGraph{T<:Integer,I<:Function,O<:Function} <:
+               AbstractSimpleLazyGraph{T}
     simple_graph::SimpleGraph{T}
 
     # boolean vectors to keep track of created neighbors
@@ -10,16 +11,16 @@ mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
     created_outneighbors::Vector{Bool}
 
     # function to compute the in/outneighbors of a vertex
-    inneighbors_lazy::Function
-    outneighbors_lazy::Function
+    inneighbors_lazy::I
+    outneighbors_lazy::O
 
-    function SimpleLazyGraph{T}(
+    function SimpleLazyGraph(
         simple_graph::SimpleGraph{T},
         created_inneighbors::Vector{Bool},
         created_outneighbors::Vector{Bool},
-        inneighbors_lazy::Function,
-        outneighbors_lazy::Function,
-    ) where {T}
+        inneighbors_lazy::I,
+        outneighbors_lazy::O,
+    ) where {T,I,O}
         num_vertices = nv(simple_graph)
         if length(created_inneighbors) != num_vertices
             error("Created inneighbors is not the same length as the number of vertices!")
@@ -27,7 +28,7 @@ mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
         if length(created_outneighbors) != num_vertices
             error("Created outneighbors is not the same length as the number of vertices!")
         end
-        return new{T}(
+        return new{T,I,O}(
             simple_graph,
             created_inneighbors,
             created_outneighbors,
@@ -37,15 +38,15 @@ mutable struct SimpleLazyGraph{T<:Integer} <: AbstractSimpleLazyGraph{T}
     end
 end
 
-function SimpleLazyGraph{T}(
+function SimpleLazyGraph(
     simple_graph::SimpleGraph{T},
-    inneighbors_lazy::Function,
-    outneighbors_lazy::Function,
-) where {T}
+    inneighbors_lazy::I,
+    outneighbors_lazy::O,
+) where {T,I,O}
     num_vertices = nv(simple_graph)
     created_inneighbors = fill(false, num_vertices)
     created_outneighbors = fill(false, num_vertices)
-    return SimpleLazyGraph{T}(
+    return SimpleLazyGraph(
         simple_graph,
         created_inneighbors,
         created_outneighbors,
@@ -54,21 +55,21 @@ function SimpleLazyGraph{T}(
     )
 end
 
-function SimpleLazyGraph{T}(
+function SimpleLazyGraph(
     simple_graph::SimpleGraph{T},
-    neighbors_lazy::Function, # function to compute the neighbors of a vertex
-) where {T}
-    return SimpleLazyGraph{T}(simple_graph, neighbors_lazy, neighbors_lazy)
+    neighbors_lazy::N, # function to compute the neighbors of a vertex
+) where {T,N}
+    return SimpleLazyGraph(simple_graph, neighbors_lazy, neighbors_lazy)
 end
 
-function SimpleLazyGraph(inneighbors_lazy::Function, outneighbors_lazy::Function)
+function SimpleLazyGraph(inneighbors_lazy::I, outneighbors_lazy::O) where {I,O}
     simple_graph = SimpleGraph{Int}()
-    return SimpleLazyGraph{Int}(simple_graph, inneighbors_lazy, outneighbors_lazy)
+    return SimpleLazyGraph(simple_graph, inneighbors_lazy, outneighbors_lazy)
 end
 
 function SimpleLazyGraph(
-    neighbors_lazy::Function, # function to compute the neighbors of a vertex
-)
+    neighbors_lazy::N, # function to compute the neighbors of a vertex
+) where {N}
     return SimpleLazyGraph(neighbors_lazy, neighbors_lazy)
 end
 
@@ -137,7 +138,8 @@ function has_edge(g::AbstractSimpleLazyGraph, e::SimpleGraphEdge)
     return has_edge(g.simple_graph, e)
 end
 
-function a_star_impl!(g::AbstractSimpleGraph, # the graph
+function a_star_impl!(
+    g::AbstractSimpleGraph, # the graph
     goal, # the end vertex
     open_set, # an initialized heap containing the active vertices
     closed_set, # an (initialized) color-map to indicate status of vertices
@@ -145,7 +147,8 @@ function a_star_impl!(g::AbstractSimpleGraph, # the graph
     came_from, # a vector holding the parent of each node in the A* exploration
     distmx,
     heuristic,
-    edgetype_to_return::Type{E}) where {E<:AbstractEdge}
+    edgetype_to_return::Type{E},
+) where {E<:AbstractEdge}
     total_path = Vector{edgetype_to_return}()
 
     @inbounds while !isempty(open_set)
